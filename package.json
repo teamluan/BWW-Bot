@@ -1,10 +1,10 @@
 {
   "name": "discord-welcome-message-bot",
-  "version": "1.0.0",
-  "description": "Discord Bot mit Slash-Command /nachricht und komplettem Welcome-System ohne Datenbank oder Website.",
-  "main": "src/index.js",
+  "version": "1.1.0",
+  "description": "Discord Bot mit Slash-Commands und komplettem Welcome-System ohne Datenbank oder Website.",
+  "main": "index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node index.js"
   },
   "engines": {
     "node": ">=20.0.0"
