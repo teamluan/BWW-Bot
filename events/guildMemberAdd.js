@@ -1,21 +1,30 @@
 const { EmbedBuilder } = require('discord.js');
+const { getGuild } = require('../utils/config');
 
 module.exports = {
   name: 'guildMemberAdd',
   async execute(member) {
-    const channelId = process.env.WELCOME_CHANNEL_ID;
-    if (channelId) {
-      const channel = await member.guild.channels.fetch(channelId).catch(() => null);
+    const config = getGuild(member.guild.id);
+
+    if (config.welcome?.enabled && config.welcome.channelId) {
+      const channel = await member.guild.channels.fetch(config.welcome.channelId).catch(() => null);
       if (channel?.isTextBased()) {
+        const mention = config.welcome.ping ? `<@${member.id}>` : member.user.username;
+        const text = config.welcome.text
+          .replaceAll('{user}', mention)
+          .replaceAll('{username}', member.user.username)
+          .replaceAll('{server}', member.guild.name);
         const embed = new EmbedBuilder()
           .setColor(0x57f287)
-          .setTitle('👋 Willkommen!')
-          .setDescription(`Hey ${member}, herzlich willkommen auf **${member.guild.name}**!\n\nDu bist das **${member.guild.memberCount}. Mitglied**.`)
+          .setDescription(text)
           .setThumbnail(member.user.displayAvatarURL({ extension: 'png', size: 256 }))
           .setFooter({ text: `${member.guild.name} • Willkommen` })
           .setTimestamp();
         await channel.send({ embeds: [embed] });
       }
+    } else if (process.env.WELCOME_CHANNEL_ID) {
+      const channel = await member.guild.channels.fetch(process.env.WELCOME_CHANNEL_ID).catch(() => null);
+      if (channel?.isTextBased()) await channel.send({ embeds: [new EmbedBuilder().setColor(0x57f287).setTitle('👋 Willkommen!').setDescription(`Hey ${member}, herzlich willkommen auf **${member.guild.name}**!`).setTimestamp()] });
     }
 
     if (process.env.AUTO_ROLE_ID) {
